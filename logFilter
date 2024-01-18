@@ -1,0 +1,65 @@
+import tkinter as tk
+from tkinter import filedialog
+
+def upload_log():
+    file_path = filedialog.askopenfilename(filetypes=[("Log files", "*.log")])
+    if file_path:
+        entry_file_path.delete(0, tk.END)
+        entry_file_path.insert(0, file_path)
+
+def filter_log():
+    file_path = entry_file_path.get()
+    filter_text = entry_filter.get()
+
+    if file_path and filter_text:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            
+            if display_var.get() == 1:  # Show only filtered lines
+                filtered_lines = [line for line in lines if filter_text.lower() in line.lower()]
+            else:  # Show everything but filtered lines
+                filtered_lines = [line for line in lines if filter_text.lower() not in line.lower()]
+
+        save_path = filedialog.asksaveasfilename(defaultextension=".log", filetypes=[("Log files", "*.log")])
+        if save_path:
+            with open(save_path, 'w') as save_file:
+                save_file.writelines(filtered_lines)
+            label_status.config(text="Log file saved successfully!")
+
+# Create the main window
+root = tk.Tk()
+root.title("Log Filter Tool")
+
+# UI elements
+label_file_path = tk.Label(root, text="Log File:")
+entry_file_path = tk.Entry(root, width=50)
+button_upload = tk.Button(root, text="Upload Log", command=upload_log)
+
+label_filter = tk.Label(root, text="Filter Text:")
+entry_filter = tk.Entry(root, width=30)
+button_filter = tk.Button(root, text="Filter Log", command=filter_log)
+
+label_display = tk.Label(root, text="Display:")
+display_var = tk.IntVar()
+radio_filtered = tk.Radiobutton(root, text="Filtered Lines Only", variable=display_var, value=1)
+radio_all_except_filtered = tk.Radiobutton(root, text="Everything But Filtered Lines", variable=display_var, value=2)
+
+label_status = tk.Label(root, text="")
+
+# Layout
+label_file_path.grid(row=0, column=0, padx=10, pady=5)
+entry_file_path.grid(row=0, column=1, padx=10, pady=5)
+button_upload.grid(row=0, column=2, padx=10, pady=5)
+
+label_filter.grid(row=1, column=0, padx=10, pady=5)
+entry_filter.grid(row=1, column=1, padx=10, pady=5)
+button_filter.grid(row=1, column=2, padx=10, pady=5)
+
+label_display.grid(row=2, column=0, padx=10, pady=5)
+radio_filtered.grid(row=2, column=1, padx=10, pady=5)
+radio_all_except_filtered.grid(row=2, column=2, padx=10, pady=5)
+
+label_status.grid(row=3, column=0, columnspan=3, pady=10)
+
+# Start the GUI
+root.mainloop()
